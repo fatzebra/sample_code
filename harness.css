@@ -1,0 +1,31 @@
+.container {
+  padding-top: 10px;
+}
+
+.button-controls {
+  margin-left: 10px;
+}
+
+.button-controls .btn {
+  margin-right: 10px;
+}
+
+#fz-iframe {
+  background-image: url('placeholder.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  width: 600px;
+  height: 600px;
+}
+
+iframe {
+  width: 600px;
+  height: 600px;
+  padding: 20px 10px;
+}
+
+.row-margin {
+  margin-bottom: 15px;
+}
