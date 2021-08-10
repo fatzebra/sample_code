@@ -185,8 +185,17 @@ const loadHPP = function() {
     console.log(JSON.stringify(event.detail))
   })
 
+  // fz.validation,error only captures errors related to SDK methods, such as renderPaymentsPage.
+  // Please subscribe to fz.form_validation.error for errors related to Hosted Payments Page.
   fz.on('fz.validation.error', function(event) {
     console.log('fz.validation.error');
+    console.log(JSON.stringify(event.detail))
+  })
+
+  // Capture form validation errors on the Hosted Payments Page.
+  // Only subscribe to this event if you'd like to customise call-to-action following validation errors.
+  fz.on('fz.form_validation.error', function(event) {
+    console.log('fz.form_validation.error');
     console.log(JSON.stringify(event.detail))
   })
 
