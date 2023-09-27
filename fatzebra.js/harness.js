@@ -39,7 +39,8 @@ const SDK_PARAMS = [
     params: [
       { name: 'accessToken', default: '' },
       { name: 'username', default: '' },
-      { name: 'sharedSecret', default: '' }
+      { name: 'sharedSecret', default: '' },
+      { name: 'cardToken', default: '' }
     ]
   },
   {
@@ -247,9 +248,112 @@ const loadHPP = function() {
   })
 }
 
+const verifyCard = function () {
+  console.log('Invoking 3DS')
+  const accessToken  = $('#accessToken').val();
+  const username     = $('#username').val();
+  const sharedSecret = $('#sharedSecret').val();
+  const amount       = parseInt($('#amount').val());
+  const currency     = $('#currency').val();
+  const reference    = $('#reference').val();
+  const firstName    = $('#firstName').val();
+  const lastName     = $('#lastName').val();
+  const email        = $('#email').val();
+  const address      = $('#address').val();
+  const city         = $('#city').val();
+  const postcode     = $('#postcode').val();
+  const state        = $('#state').val();
+  const country      = $('#country').val();
+  const cardToken      = $('#cardToken').val();
+  window.localStorage.setItem('fz-access-token', accessToken);
+
+  const verification = CryptoJS.HmacMD5([reference, amount, currency].join(':'), sharedSecret).toString();
+
+  const fz = new FatZebra({
+    username,
+    test: true
+  });
+
+  fz.on('fz.sca.success', function(event) {
+    console.log('fz.sca.success');
+    console.log(JSON.stringify(event.detail))
+  })
+
+  fz.on('fz.sca.error', function(event) {
+    console.log('fz.sca.error');
+    console.log(JSON.stringify(event.detail))
+  })
+
+  // fz.validation,error only captures errors related to SDK methods, such as renderPaymentsPage.
+  // Please subscribe to fz.form_validation.error for errors related to Hosted Payments Page.
+  fz.on('fz.validation.error', function(event) {
+    console.log('fz.validation.error');
+    console.log(JSON.stringify(event.detail))
+  })
+
+  // Capture form validation errors on the Hosted Payments Page.
+  // Only subscribe to this event if you'd like to customise call-to-action following validation errors.
+  fz.on('fz.form_validation.error', function(event) {
+    console.log('fz.form_validation.error');
+    console.log(JSON.stringify(event.detail))
+  })
+
+  fz.on('fz.tokenization.success', function(event) {
+    console.log('fz.tokenization.success');
+    console.log(JSON.stringify(event.detail))
+  })
+
+  fz.on('fz.tokenization.error', function(event) {
+    console.log('fz.tokenization.error');
+    console.log(JSON.stringify(event.detail))
+  })
+
+  fz.on('fz.payment.success', function(event) {
+    console.log('fz.payment.success');
+    console.log(JSON.stringify(event.detail))
+    // Verify data integrity with your backend via ajax before consuming transaction data.
+    alert('payment success!');
+
+  })
+
+  fz.on('fz.payment.error', function(event) {
+    console.log('fz.payment.error');
+    console.log(JSON.stringify(event.detail))
+    alert('payment error!');
+  })
+
+  fz.verifyCard({
+    customer: {
+      firstName,
+      lastName,
+      email,
+      address,
+      city,
+      postcode,
+      state,
+      country
+    },
+    paymentIntent: {
+      payment: {
+        amount,
+        currency,
+        reference
+      },
+      verification
+    },
+    paymentMethod: {
+      type: "card_on_file",
+      data: {
+        token: cardToken
+      }
+    }
+  })
+}
+
 const refreshPage = function() {
   location.reload();
 }
 
 $('#load-hpp').click(loadHPP);
 $('#reset').click(refreshPage);
+$('#verify-card').click(verifyCard);
